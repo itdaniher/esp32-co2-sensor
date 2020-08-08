@@ -1,7 +1,6 @@
 import gc
 import ntptime
 import network
-import webrepl_cfg
 import time
 
 sta_if = network.WLAN(network.STA_IF)
@@ -94,6 +93,7 @@ def index(req, resp):
 
 @app.route("/repl")
 def redir(req, resp):
+    import webrepl_cfg
     host = req.headers.get(b"Host", my_ip.encode()).decode()
     password = webrepl_cfg.PASS
     await picoweb.start_response(

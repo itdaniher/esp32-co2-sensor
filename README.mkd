@@ -11,3 +11,14 @@
 ### Shoutouts
  * [m5stack's ATOM Lite](https://m5stack.com/products/atom-lite-esp32-development-kit)
  * [Seeed's Grove System](https://wiki.seeedstudio.com/Grove_System/)
+
+### Setup process (from clean hardware)
+ * `pipenv install` (get dependencies)
+ *  `./flash.sh` (erase & write pycopy micropython image)
+ * reset device via button
+ * `./deploy.sh` (write boot.py, main.py, etc)
+ * reset device via button
+ * `gcc -o dterm dterm.c` (build serial terminal)
+ * `./dterm /dev/ttyUSB0 115200 8 1 n` (open a serial terminal)
+ * `import initial_setup` and follow the instructions
+ * reset device via button
