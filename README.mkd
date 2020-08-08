@@ -5,8 +5,8 @@
  * [micropython's webrepl](https://github.com/micropython/webrepl)
  * [brianolson's cbor implementation for Python](https://github.com/brianolson/cbor_py)
  * various generations of mhz19b abstractions 
-  * [gen1](https://raw.githubusercontent.com/UedaTakeyuki/slider/master/mh_z19.py)
-  * [gen2](https://github.com/UedaTakeyuki/mh-z19)
+   * [gen1](https://raw.githubusercontent.com/UedaTakeyuki/slider/master/mh_z19.py)
+   * [gen2](https://github.com/UedaTakeyuki/mh-z19)
 
 ### Shoutouts
  * [m5stack's ATOM Lite](https://m5stack.com/products/atom-lite-esp32-development-kit)
