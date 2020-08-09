@@ -22,3 +22,18 @@
  * `./dterm /dev/ttyUSB0 115200 8 1 n` (open a serial terminal)
  * `import initial_setup` and follow the instructions
  * reset device via button
+
+### Use
+
+1x Neopixel on pin 27.
+MHZ19's serial RX pin to pin 26.
+MHZ19's serial TX pin to pin 32.
+
+LED turns off on reboot.
+LED flashes rainbow while connecting to Wifi.
+LED green when wifi connected and clock set.
+
+Opens http server on port 80.
+
+ * `/co2` - JSON formatted response from mhz19b
+ * `/repl` - self-hosted auto-login enabled micropython repl
