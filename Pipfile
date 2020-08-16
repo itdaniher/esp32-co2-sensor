@@ -9,6 +9,7 @@ verify_ssl = true
 adafruit-ampy = "*"
 esptool = "*"
 pyserial = "*"
+isort = "*"
 
 [requires]
 python_version = "3.8"

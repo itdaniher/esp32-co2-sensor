@@ -4,10 +4,11 @@
 # With some slight modification (included uos.dupterm_notify) it now works on
 # micropython-1.2
 #
-import socket
-import uos
-import network
 import errno
+import socket
+
+import network
+import uos
 from uio import IOBase
 
 listen_s = None

@@ -17,11 +17,12 @@
 # few extensions)
 # Distributed under MIT License
 #
+import gc
 import socket
+from time import localtime, sleep_ms
+
 import network
 import uos
-import gc
-from time import sleep_ms, localtime
 from micropython import alloc_emergency_exception_buf
 
 # constant definitions
