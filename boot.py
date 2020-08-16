@@ -1,7 +1,6 @@
 import machine
-
-import neopixel
 import micropython
+import neopixel
 
 micropython.alloc_emergency_exception_buf(256)
 

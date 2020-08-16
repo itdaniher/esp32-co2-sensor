@@ -1,7 +1,12 @@
 import gc
-import ntptime
-import network
+import socket
 import time
+
+import _thread
+import network
+import ntptime
+import ujson
+
 sta_if = network.WLAN(network.STA_IF)
 sta_if.active(True)
 
@@ -55,10 +60,8 @@ if "192.168" in my_ip:
 def timestamp(t=None):
     return str(rtc.datetime())
 
-import utelnetserver
-import uftpd
 
-import picoweb, ujson
+import picoweb
 
 app = picoweb.WebApp(__name__)
 
@@ -75,28 +78,6 @@ def index(req, resp):
     await resp.awrite(timestamp())
 
 
-@app.route("/repl")
-def redir(req, resp):
-    import webrepl_cfg
-
-    host = req.headers.get(b"Host", my_ip.encode()).decode()
-    password = webrepl_cfg.PASS
-    await picoweb.start_response(
-        resp,
-        status="302",
-        headers="Location: http://%s/repl_static#%s:8266;%s" % (host, host, password),
-    )
-    await resp.awrite("\r\n")
-
-
-@app.route("/repl_static")
-def index(req, resp):
-    headers = b"Cache-Control: max-age=86400\r\n"
-    # assert b"gzip" in req.headers.get(b"Accept-Encoding", b"")
-    headers += b"Content-Encoding: gzip\r\n"
-    await app.sendfile(resp, "webrepl2.html.gzip", "text/html", headers)
-
-
 @app.route("/echo")
 def index(req, resp):
     size = int(req.headers[b"Content-Length"])
@@ -105,57 +86,22 @@ def index(req, resp):
     await resp.awrite(data)
 
 
-import _thread
+@app.route("/reset")
+def index(req, resp):
+    def reset_in(seconds):
+        time.sleep(seconds)
+        machine.reset()
+
+    _thread.start_new_thread(reset_in, (30,))
+    await picoweb.start_response(resp)
+    await resp.awrite("resetting in 30 seconds")
+
 
 web_thread = _thread.start_new_thread(
-    app.run, (), dict(debug=True, host=my_ip, port=80)
+    app.run, (), dict(debug=False, host=my_ip, port=80)
 )
-import neopixelrmt
-
-rgb_strand = neopixelrmt.NeoPixel(machine.Pin(26, machine.Pin.OUT), 200)
-
-
-def chase(color=rainbow[0], max_count=None, sleep=0.01):
-    for i in range(max_count or rgb_strand.n):
-        rgb_strand[i - 1] = rainbow[-1]
-        rgb_strand[i] = color
-        rgb_strand.write()
-        time.sleep(sleep)
-
-
-import pretty
-
-exit_pretty = False
-
-
-def pretty_forever():
-    global exit_pretty
-    last_timestamp = pretty.pretty(rgb_strand, rtc)
-    while not (exit_pretty or utelnetserver.connected):
-        timestamp = pretty.pretty(rgb_strand, rtc)
-        delta  = (timestamp - last_timestamp)
-        last_timestamp = timestamp
-        if exit_pretty:
-            break
-
-
-def stop_pretty():
-    global exit_pretty
-    exit_pretty = True
-
-
-def start_pretty():
-    global exit_pretty
-    exit_pretty = False
-    _thread.start_new_thread(pretty_forever, ())
-
-
-
-start_pretty()
 
 exit_echo = False
-
-import socket
 
 
 @micropython.native
@@ -185,15 +131,28 @@ def echo():
 _thread.start_new_thread(echo, ())
 
 output_pin = machine.Pin(32, mode=machine.Pin.OUT, value=0)
+input_pin = machine.Pin(39, mode=machine.Pin.IN)
+input_pin.irq(lambda p: output_pin(1))
 exit_timer = False
-def hourly_timer(output_pin, on_minutes = (1,2)):
+on_minutes = [1, 2, 3, 4, 5]
+
+
+def hourly_timer():
     global exit_timer
-    while exit_timer:
+    global on_minutes
+    global output_pin
+    while not exit_timer:
         hours, minutes, seconds, microseconds = rtc.datetime()[-4:]
         if minutes in on_minutes:
-            output_pin.on()
+            output_pin(1)
         else:
-            output_pin.off()
+            output_pin(0)
         time.sleep(10)
 
-#_thread.start_new_thread(hourly_timer, (output_pin, (1,2)))
+
+_thread.start_new_thread(hourly_timer, ())
+
+import uftpd
+import utelnetserver
+
+utelnetserver.start()

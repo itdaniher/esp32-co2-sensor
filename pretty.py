@@ -2,6 +2,43 @@ import math
 import random
 import time
 
+import neopixelrmt
+
+rgb_strand = neopixelrmt.NeoPixel(machine.Pin(26, machine.Pin.OUT), 200)
+
+
+def chase(color=rainbow[0], max_count=None, sleep=0.01):
+    for i in range(max_count or rgb_strand.n):
+        rgb_strand[i - 1] = rainbow[-1]
+        rgb_strand[i] = color
+        rgb_strand.write()
+        time.sleep(sleep)
+
+
+exit_pretty = False
+
+
+def pretty_forever():
+    global exit_pretty
+    last_timestamp = pretty(rgb_strand, rtc)
+    while exit_pretty or utelnetserver.connected:
+        timestamp = pretty(rgb_strand, rtc)
+        print(timestamp - last_timestamp)
+        last_timestamp = timestamp
+        if exit_pretty:
+            break
+
+
+def stop_pretty():
+    global exit_pretty
+    exit_pretty = True
+
+
+def start_pretty():
+    global exit_pretty
+    exit_pretty = False
+    _thread.start_new_thread(pretty_forever, ())
+
 
 @micropython.native
 def hsv_to_rgb(h, s, v):
