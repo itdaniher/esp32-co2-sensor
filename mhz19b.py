@@ -10,58 +10,29 @@ version = "0.5.0"
 
 # major version of running python
 p_ver = "3"
+import time
 
 
 class MHZ19:
     def __init__(self, ser):
         self.ser = ser
 
-    def mh_z19(self):
-        ser = self.ser
-        while 1:
-            result = ser.write(b"\xff\x01\x86\x00\x00\x00\x00\x00\x79")
-            s = ser.read(9)
-
-            if p_ver == "2":
-                if len(s) >= 4 and s[0] == "\xff" and s[1] == "\x86":
-                    return {"co2": ord(s[2]) * 256 + ord(s[3])}
-                break
-            else:
-                if len(s) >= 4 and s[0] == 0xFF and s[1] == 0x86:
-                    return {"co2": s[2] * 256 + s[3]}
-                break
-
-    def read(self):
-        result = self.mh_z19()
-        if result is not None:
-            return result
-
     def read_all(self):
         ser = self.ser
         while 1:
+            # flush stale data
+            ser.read()
             result = ser.write(b"\xff\x01\x86\x00\x00\x00\x00\x00\x79")
-            s = ser.read(9)
-
-            if p_ver == "2":
-                if len(s) >= 9 and s[0] == "\xff" and s[1] == "\x86":
-                    return {
-                        "co2": ord(s[2]) * 256 + ord(s[3]),
-                        "temperature": ord(s[4]) - 40,
-                        "TT": ord(s[4]),
-                        "SS": ord(s[5]),
-                        "UhUl": ord(s[6]) * 256 + ord(s[7]),
-                    }
-                break
-            else:
-                if len(s) >= 9 and s[0] == 0xFF and s[1] == 0x86:
-                    return {
-                        "co2": s[2] * 256 + s[3],
-                        "temperature": s[4] - 40,
-                        "TT": s[4],
-                        "SS": s[5],
-                        "UhUl": s[6] * 256 + s[7],
-                    }
-                break
+            time.sleep(0.1)
+            s = ser.read()
+            if len(s) >= 9 and s[0] == 0xFF and s[1] == 0x86:
+                return {
+                    "co2": s[2] * 256 + s[3],
+                    "temperature": s[4] - 40,
+                    "TT": s[4],
+                    "SS": s[5],
+                    "UhUl": s[6] * 256 + s[7],
+                }
 
     def abc_on(self):
         ser = self.ser
