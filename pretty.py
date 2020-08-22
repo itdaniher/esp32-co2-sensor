@@ -4,8 +4,20 @@ import time
 import machine
 import neopixelrmt
 import _thread
+import esp32
 
 rgb_strand = neopixelrmt.NeoPixel(machine.Pin(26, machine.Pin.OUT), 200)
+
+rainbow = [
+    (148, 0, 211),
+    (75, 0, 130),
+    (0, 0, 255),
+    (0, 255, 0),
+    (255, 255, 0),
+    (255, 127, 0),
+    (255, 0, 0),
+    (0, 0, 0),
+]
 
 
 def chase(color=rainbow[0], max_count=None, sleep=0.01):
