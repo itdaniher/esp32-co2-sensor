@@ -1,8 +1,9 @@
 import math
 import random
 import time
-
+import machine
 import neopixelrmt
+import _thread
 
 rgb_strand = neopixelrmt.NeoPixel(machine.Pin(26, machine.Pin.OUT), 200)
 
@@ -20,9 +21,9 @@ exit_pretty = False
 
 def pretty_forever():
     global exit_pretty
-    last_timestamp = pretty(rgb_strand, rtc)
+    last_timestamp = pretty(rgb_strand)
     while exit_pretty or utelnetserver.connected:
-        timestamp = pretty(rgb_strand, rtc)
+        timestamp = pretty(rgb_strand)
         print(timestamp - last_timestamp)
         last_timestamp = timestamp
         if exit_pretty:
@@ -79,7 +80,7 @@ def get_hsv(ts, i):
 
 
 @micropython.native
-def pretty(neopixels, rtc):
+def pretty(neopixels):
     ct = neopixels.n
     # hh, mm, ss, us = rtc.datetime()[-4:]
     # ts = hh*3600 + mm * 60 + ss + us / 1e6
